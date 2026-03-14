@@ -107,6 +107,6 @@ public class TokenController {
         String accessToken = jwtEncoder.encode(JwtEncoderParameters.from(accessClaims)).getTokenValue();
         String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims)).getTokenValue();
 
-        return new LoginResponse(accessToken, accessExpiresIn, refreshToken);
+        return new LoginResponse(accessToken, accessExpiresIn, refreshToken, user);
     }
 }

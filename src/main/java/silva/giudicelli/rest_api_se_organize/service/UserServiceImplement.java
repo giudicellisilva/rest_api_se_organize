@@ -12,7 +12,7 @@ import silva.giudicelli.rest_api_se_organize.repository.UserRepository;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService {
+public class UserServiceImplement implements UserService {
 	@Autowired
     private UserRepository userRepository;
 	

@@ -39,16 +39,15 @@ public class UserController {
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public UserResponse createUser(@RequestBody @Valid UserRequest newUser) {
 		User user = newUser.toModel(passwordEncoder);
-		Role basicRole = roleRepository.findByName("basic");
+		Role basicRole = roleRepository.findByName("BASIC");
 		user.setRoles(Set.of(basicRole));
 		user = userService.register(user);
 		return new UserResponse(user);
 	}
 	
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAuthority('SCOPE_admin') or hasAuthority('SCOPE_basic')")
+	@PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
     public UserResponse getUser(@PathVariable String email) {
-		System.out.println("email: " + email);
         var user = userService.getUser(email)
         		.orElseThrow(() -> new BadCredentialsException("Usuário não encontrado com o e-mail informado."));;
         System.out.println("User Response: " + user);
@@ -56,7 +55,7 @@ public class UserController {
     }
 	
 	@PutMapping("/{id}")
-	@PreAuthorize("hasAuthority('SCOPE_admin') or hasAuthority('SCOPE_basic')")
+	@PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
 	public UserResponse updateUser(@PathVariable Long id, @RequestBody UserRequest updateRequest) { 
 	    
 	    User existingUser = userService.findById(id)
@@ -77,7 +76,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('SCOPE_admin') or hasAuthority('SCOPE_basic')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
     public void deleteUser(@PathVariable Long id) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));
