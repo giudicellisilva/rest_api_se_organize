@@ -72,45 +72,26 @@ public class TaskController {
     
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
-    @Transactional // Importante para garantir que o delete e o create ocorram juntos
+    @Transactional
     public TaskResponse update(@PathVariable Long id, @RequestBody @Valid TaskRequest request, @AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
+        
         Task taskExistente = taskService.findById(id);
-
-        // Validação de Segurança
         if (!taskExistente.getUser().getId().equals(userId)) {
             throw new RuntimeException("Acesso negado: você não é o dono desta tarefa");
         }
 
-        // 1. Identificar o tipo atual da tarefa no banco
-        String tipoNoBanco = "GENERIC";
-        if (taskExistente instanceof MusicTask) tipoNoBanco = "MUSIC";
-        else if (taskExistente instanceof FitnessTask) tipoNoBanco = "FITNESS";
+        String tipoNoBanco = getTaskType(taskExistente);
 
-        // 2. Verificar se o tipo mudou comparando com o request
+        // Se o tipo mudou, entramos no fluxo de substituição
         if (!tipoNoBanco.equalsIgnoreCase(request.type())) {
-            // Se mudou, precisamos trocar a classe. O jeito mais seguro é deletar e criar.
             User user = taskExistente.getUser();
-            Integer currentOrder = taskExistente.getOrder(); // Preservamos a ordem original
+            Integer currentOrder = taskExistente.getOrder();
+
+            taskService.delete(id, user); 
+
+            Task novaTask = createSpecificTask(request);
             
-            taskService.delete(id, user); // Removemos a tarefa antiga (e seus campos específicos)
-
-            // Criamos a nova tarefa com a classe correta
-            Task novaTask;
-            if ("MUSIC".equalsIgnoreCase(request.type())) {
-                MusicTask music = new MusicTask();
-                music.setInstrument(request.instrument());
-                music.setSheetMusicLink(request.sheetMusicLink());
-                novaTask = music;
-            } else if ("FITNESS".equalsIgnoreCase(request.type())) {
-                FitnessTask fitness = new FitnessTask();
-                fitness.setRepetitions(request.repetitions());
-                fitness.setMuscleGroup(request.muscleGroup());
-                novaTask = fitness;
-            } else {
-                novaTask = new SimpleTask();
-            }
-
             novaTask.setTitle(request.title());
             novaTask.setDescription(request.description());
             novaTask.setDate(request.date());
@@ -120,19 +101,45 @@ public class TaskController {
             return new TaskResponse(taskService.save(novaTask));
         }
 
-        taskExistente.setTitle(request.title());
-        taskExistente.setDescription(request.description());
-        taskExistente.setDate(request.date());
+        updateTaskFields(taskExistente, request);
+        return new TaskResponse(taskService.save(taskExistente));
+    }
 
-        if (taskExistente instanceof MusicTask music) {
+
+    private String getTaskType(Task task) {
+        if (task instanceof MusicTask) return "MUSIC";
+        if (task instanceof FitnessTask) return "FITNESS";
+        return "SIMPLE";
+    }
+
+    private Task createSpecificTask(TaskRequest request) {
+        if ("MUSIC".equalsIgnoreCase(request.type())) {
+            MusicTask music = new MusicTask();
             music.setInstrument(request.instrument());
             music.setSheetMusicLink(request.sheetMusicLink());
-        } else if (taskExistente instanceof FitnessTask fitness) {
+            return music;
+        } 
+        if ("FITNESS".equalsIgnoreCase(request.type())) {
+            FitnessTask fitness = new FitnessTask();
+            fitness.setRepetitions(request.repetitions());
+            fitness.setMuscleGroup(request.muscleGroup());
+            return fitness;
+        }
+        return new SimpleTask();
+    }
+
+    private void updateTaskFields(Task task, TaskRequest request) {
+        task.setTitle(request.title());
+        task.setDescription(request.description());
+        task.setDate(request.date());
+
+        if (task instanceof MusicTask music) {
+            music.setInstrument(request.instrument());
+            music.setSheetMusicLink(request.sheetMusicLink());
+        } else if (task instanceof FitnessTask fitness) {
             fitness.setRepetitions(request.repetitions());
             fitness.setMuscleGroup(request.muscleGroup());
         }
-
-        return new TaskResponse(taskService.save(taskExistente));
     }
 
     @DeleteMapping("/{id}")
