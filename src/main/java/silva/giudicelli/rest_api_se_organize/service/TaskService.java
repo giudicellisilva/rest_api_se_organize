@@ -11,4 +11,5 @@ public interface TaskService {
     void delete(Long id, User user);
     void reorderTasks(Long userId, LocalDate date, List<Long> taskIds);
     Task findById(Long id);
+    List<Task> listAll(User user);
 }

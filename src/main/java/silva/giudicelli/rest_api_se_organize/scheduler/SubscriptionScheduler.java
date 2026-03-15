@@ -23,16 +23,16 @@ public class SubscriptionScheduler {
     @Autowired
     private RoleRepository roleRepository;
 
+    // Roda todos os dias à meia-noite
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void checkExpiredSubscriptions() {
-        LocalDate today = LocalDate.now();
         Role basicRole = roleRepository.findByName("BASIC");
         
-        // Busca usuários SUBSCRIBER com data de expiração anterior a hoje
-        List<User> expiredUsers = userRepository.findExpiredSubscribers(today);
+        // Agora busca quem é SUBSCRIBER mas não tem contrato no banco
+        List<User> usersWithoutContract = userRepository.findSubscribersWithoutContract();
 
-        for (User user : expiredUsers) {
+        for (User user : usersWithoutContract) {
             user.setRoles(new HashSet<>(Set.of(basicRole)));
             userRepository.save(user);
         }

@@ -6,8 +6,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "tb_tasks")
-@Inheritance(strategy = InheritanceType.JOINED) // Estratégia de herança
-@DiscriminatorColumn(name = "task_type") // Coluna que identifica o tipo no banco
+@Inheritance(strategy = InheritanceType.JOINED) 
+@DiscriminatorColumn(name = "task_type")
 @DiscriminatorValue("TASK")
 @Data
 public abstract class Task {

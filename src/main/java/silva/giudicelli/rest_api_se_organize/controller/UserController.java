@@ -46,7 +46,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+	@PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public UserResponse getUser(@PathVariable String email) {
         var user = userService.getUser(email)
         		.orElseThrow(() -> new BadCredentialsException("Usuário não encontrado com o e-mail informado."));;
@@ -55,7 +55,7 @@ public class UserController {
     }
 	
 	@PutMapping("/{id}")
-	@PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+	@PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
 	public UserResponse updateUser(@PathVariable Long id, @RequestBody UserRequest updateRequest) { 
 	    
 	    User existingUser = userService.findById(id)
@@ -76,7 +76,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public void deleteUser(@PathVariable Long id) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));

@@ -12,7 +12,8 @@ import silva.giudicelli.rest_api_se_organize.model.User;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
+	List<Task> findAllByUser(User user);
     List<Task> findAllByUserAndDateOrderByOrderAsc(User user, LocalDate date);
-
     Task findFirstByUserAndDateOrderByOrderDesc(User user, LocalDate date);
+    
 }

@@ -92,12 +92,23 @@ public class TaskController {
 	}
 
     @GetMapping("/{date}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public List<TaskResponse> listByDate(@PathVariable LocalDate date, @AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
         User user = userService.findById(userId).orElseThrow();
 
         return taskService.findByDay(user, date).stream()
+                .map(TaskResponse::new)
+                .toList();
+    }
+    
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
+    public List<TaskResponse> listAll(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.parseLong(jwt.getSubject());
+        User user = userService.findById(userId).orElseThrow();
+
+        return taskService.listAll(user).stream()
                 .map(TaskResponse::new)
                 .toList();
     }
@@ -190,12 +201,11 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public void delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
         User user = userService.findById(userId).orElseThrow();
         
-        // O service já possui a lógica de validar o dono que criamos antes
         taskService.delete(id, user);
     }
 }

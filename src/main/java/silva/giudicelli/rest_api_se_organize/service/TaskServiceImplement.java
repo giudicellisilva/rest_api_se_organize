@@ -75,4 +75,10 @@ public class TaskServiceImplement implements TaskService {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
     }
+
+	@Override
+	public List<Task> listAll(User user) {
+		
+		return taskRepository.findAllByUser(user);
+	}
 }
