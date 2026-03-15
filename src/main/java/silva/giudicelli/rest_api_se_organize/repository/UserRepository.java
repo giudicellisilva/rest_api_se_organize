@@ -15,6 +15,8 @@ import silva.giudicelli.rest_api_se_organize.model.User;
 public interface UserRepository extends JpaRepository<User, Long>{
 	 Optional<User> findByEmail(String email);
 	 Optional<User> findById(Long id);
-	 @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'SUBSCRIBER' AND u.subscriptionExpiresAt < :now")
-	 List<User> findExpiredSubscribers(@Param("now") LocalDate now);
+	 @Query("SELECT u FROM User u JOIN u.roles r " +
+		       "WHERE r.name = 'SUBSCRIBER' " +
+		       "AND NOT EXISTS (SELECT s FROM Subscription s WHERE s.user = u)")
+	 List<User> findSubscribersWithoutContract();
 }

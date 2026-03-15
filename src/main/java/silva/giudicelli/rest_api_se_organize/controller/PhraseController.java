@@ -29,7 +29,7 @@ public class PhraseController {
     
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public PhraseResponse createPhase(
         @RequestBody @Valid PhraseRequest request,
         @AuthenticationPrincipal Jwt jwt
@@ -47,7 +47,7 @@ public class PhraseController {
     }
     
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public List<PhraseResponse> listAll(@AuthenticationPrincipal Jwt jwt) {
         // 1. Pega o ID do usuário que está fazendo a requisição
         Long userId = Long.parseLong(jwt.getSubject());
@@ -59,7 +59,7 @@ public class PhraseController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public PhraseResponse updatePhase(@PathVariable Long id, @RequestBody PhraseRequest request) {
         Phrase existingPhase = phaseService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Fase não encontrada."));
@@ -73,7 +73,7 @@ public class PhraseController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN') or hasAuthority('SCOPE_BASIC')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public void deletePhase(@PathVariable Long id) {
         Phrase phase = phaseService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Fase não encontrada."));
