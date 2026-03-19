@@ -81,8 +81,8 @@ public class TokenController {
 
     private LoginResponse createLoginResponse(User user) {
         var now = Instant.now();
-        var accessExpiresIn = 300L;
-        var refreshExpiresIn = 86400L;
+        var accessExpiresIn = 3600L;
+        var refreshExpiresIn = 604800L;
 
         var scopes = user.getRoles()
                 .stream()
