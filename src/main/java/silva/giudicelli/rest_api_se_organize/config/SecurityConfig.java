@@ -64,7 +64,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         
         // Métodos HTTP autorizados
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         
         // Headers autorizados (Authorization é essencial para o JWT)
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));

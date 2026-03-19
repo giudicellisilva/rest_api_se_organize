@@ -81,4 +81,9 @@ public class TaskServiceImplement implements TaskService {
 		
 		return taskRepository.findAllByUser(user);
 	}
+	
+	@Override
+	public List<Task> findByPeriod(User user, LocalDate startDate, LocalDate endDate){
+		return taskRepository.findByUserAndDateBetweenOrderByDateAscTimeAsc(user, startDate, endDate);
+	}
 }

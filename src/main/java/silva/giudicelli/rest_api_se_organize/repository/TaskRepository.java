@@ -15,5 +15,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	List<Task> findAllByUser(User user);
     List<Task> findAllByUserAndDateOrderByOrderAsc(User user, LocalDate date);
     Task findFirstByUserAndDateOrderByOrderDesc(User user, LocalDate date);
-    
+    List<Task> findByUserAndDateBetweenOrderByDateAscTimeAsc(User user, LocalDate start, LocalDate end);
 }

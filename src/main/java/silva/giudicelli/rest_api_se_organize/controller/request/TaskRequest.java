@@ -4,12 +4,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record TaskRequest(
     @NotBlank(message = "Título é obrigatório")
     String title,
     
     String description,
+    
+    Boolean completed,
+    
+    LocalTime time,
     
     @NotNull(message = "Data é obrigatória")
     LocalDate date,

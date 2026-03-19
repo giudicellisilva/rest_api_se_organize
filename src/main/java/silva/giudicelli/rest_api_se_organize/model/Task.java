@@ -3,6 +3,7 @@ package silva.giudicelli.rest_api_se_organize.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "tb_tasks")
@@ -19,7 +20,13 @@ public abstract class Task {
     @Column(nullable = false)
     private String title;
 
-    private String description;
+	private String description;
+    
+	@Column(nullable = false)
+	private Boolean completed = false;;
+    
+    @Column(name = "task_time")
+    private LocalTime time;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -33,6 +40,14 @@ public abstract class Task {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public LocalTime getTime() {
+		return time;
+	}
+
+	public void setTime(LocalTime time) {
+		this.time = time;
 	}
 
 	public String getTitle() {
@@ -49,6 +64,14 @@ public abstract class Task {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+    public Boolean getCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(Boolean completed) {
+		this.completed = completed;
 	}
 
 	public LocalDate getDate() {
