@@ -1,5 +1,6 @@
 package silva.giudicelli.rest_api_se_organize.controller.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -16,7 +17,7 @@ public class TaskResponse {
     private String type;
     private Boolean completed;
     private LocalTime time;
-
+    private LocalDate date;
     // Campos específicos (agregados no Response)
     private String instrument;
     private String sheetMusicLink;
@@ -27,7 +28,7 @@ public class TaskResponse {
     private Integer durationMinutes;
     private String project;
     private String priority;
-    private java.time.LocalDateTime deadline;
+    private LocalDateTime deadline;
 
     public TaskResponse(Task model) {
         this.id = model.getId();
@@ -35,7 +36,7 @@ public class TaskResponse {
         this.description = model.getDescription();
         this.completed = model.getCompleted();
         this.time = model.getTime();
-
+        this.date = model.getDate();
         // Casting e preenchimento de campos específicos
         if (model instanceof MusicTask music) {
             this.type = "MUSIC";
@@ -77,4 +78,5 @@ public class TaskResponse {
     public String getProject() { return project; }
     public String getPriority() { return priority; }
     public LocalDateTime getDeadline() { return deadline; }
+    public LocalDate getDate() { return date; }
 }
