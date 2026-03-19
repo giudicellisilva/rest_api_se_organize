@@ -47,12 +47,13 @@ public class SubscriptionServiceImplement implements SubscriptionService {
 
         Role subscriberRole = roleRepository.findByName("SUBSCRIBER");
 
-	     // Use HashSet para permitir que o Hibernate gerencie a coleção
-	     Set<Role> roles = new HashSet<>();
-	     roles.add(subscriberRole);
-	
-	     user.setRoles(roles);
-	     userRepository.save(user);
+	    System.out.println("subscriberRole" + subscriberRole);
+	    Set<Role> roles = new HashSet<>();
+	    roles.add(subscriberRole);
+	    System.out.println("roles" + roles);
+	    user.setRoles(roles);
+	    System.out.println("user save role: " + user);
+	    userRepository.save(user);
     }
     
     @Transactional

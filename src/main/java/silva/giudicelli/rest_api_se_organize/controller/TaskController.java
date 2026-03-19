@@ -40,7 +40,7 @@ public class TaskController {
 	public TaskResponse create(@RequestBody @Valid TaskRequest request, @AuthenticationPrincipal Jwt jwt) {
 	    Long userId = Long.parseLong(jwt.getSubject());
 	    User user = userService.findById(userId).orElseThrow();
-	
+	    System.out.println("Teste: " + request);
 	    String type = request.type().toUpperCase();
 	    boolean isPremiumType = type.equals("FITNESS") || type.equals("STUDY");
 	
@@ -86,6 +86,7 @@ public class TaskController {
 	    task.setTitle(request.title());
 	    task.setDescription(request.description());
 	    task.setDate(request.date());
+	    task.setTime(request.time());
 	    task.setUser(user);
 	
 	    return new TaskResponse(taskService.save(task));
@@ -98,6 +99,22 @@ public class TaskController {
         User user = userService.findById(userId).orElseThrow();
 
         return taskService.findByDay(user, date).stream()
+                .map(TaskResponse::new)
+                .toList();
+    }
+    
+    @GetMapping("/period")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
+    public List<TaskResponse> listByPeriod(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @AuthenticationPrincipal Jwt jwt) {
+        
+        Long userId = Long.parseLong(jwt.getSubject());
+        User user = userService.findById(userId).orElseThrow();
+
+        // Chamada para o novo método no service
+        return taskService.findByPeriod(user, startDate, endDate).stream()
                 .map(TaskResponse::new)
                 .toList();
     }
@@ -162,30 +179,47 @@ public class TaskController {
 	    updateTaskFields(taskExistente, request);
 	    return new TaskResponse(taskService.save(taskExistente));
 	}
-
-
+    
     private String getTaskType(Task task) {
         if (task instanceof MusicTask) return "MUSIC";
         if (task instanceof FitnessTask) return "FITNESS";
+        if (task instanceof StudyTask) return "STUDY";
+        if (task instanceof WorkTask) return "WORK";
         return "SIMPLE";
     }
 
     private Task createSpecificTask(TaskRequest request) {
-        if ("MUSIC".equalsIgnoreCase(request.type())) {
-            MusicTask music = new MusicTask();
-            music.setInstrument(request.instrument());
-            music.setSheetMusicLink(request.sheetMusicLink());
-            return music;
-        } 
-        if ("FITNESS".equalsIgnoreCase(request.type())) {
-            FitnessTask fitness = new FitnessTask();
-            fitness.setRepetitions(request.repetitions());
-            fitness.setMuscleGroup(request.muscleGroup());
-            return fitness;
-        }
-        return new SimpleTask();
+        String type = request.type().toUpperCase();
+        return switch (type) {
+            case "MUSIC"   -> {
+                MusicTask m = new MusicTask();
+                m.setInstrument(request.instrument());
+                m.setSheetMusicLink(request.sheetMusicLink());
+                yield m;
+            }
+            case "FITNESS" -> {
+                FitnessTask f = new FitnessTask();
+                f.setRepetitions(request.repetitions());
+                f.setMuscleGroup(request.muscleGroup());
+                yield f;
+            }
+            case "STUDY"   -> {
+                StudyTask s = new StudyTask();
+                s.setSubject(request.subject());
+                s.setResourceLink(request.resourceLink());
+                s.setDurationMinutes(request.durationMinutes());
+                yield s;
+            }
+            case "WORK"    -> {
+                WorkTask w = new WorkTask();
+                w.setProject(request.project());
+                w.setPriority(request.priority());
+                w.setDeadline(request.deadline());
+                yield w;
+            }
+            default -> new SimpleTask();
+        };
     }
-
     private void updateTaskFields(Task task, TaskRequest request) {
         task.setTitle(request.title());
         task.setDescription(request.description());
@@ -199,7 +233,24 @@ public class TaskController {
             fitness.setMuscleGroup(request.muscleGroup());
         }
     }
+    
+    @PatchMapping("/{id}/complete")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
+    public TaskResponse toggleComplete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.parseLong(jwt.getSubject());
+        Task task = taskService.findById(id);
 
+        // Valida se o usuário é dono da task
+        if (!task.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado");
+        }
+
+        // Inverte o status atual (Toggle)
+        task.setCompleted(!task.getCompleted());
+        
+        return new TaskResponse(taskService.save(task));
+    }
+    
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_SUBSCRIBER', 'SCOPE_BASIC')")
     public void delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {

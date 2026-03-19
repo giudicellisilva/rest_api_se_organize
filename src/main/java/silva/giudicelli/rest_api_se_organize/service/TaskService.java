@@ -12,4 +12,5 @@ public interface TaskService {
     void reorderTasks(Long userId, LocalDate date, List<Long> taskIds);
     Task findById(Long id);
     List<Task> listAll(User user);
+    List<Task> findByPeriod(User user, LocalDate startDate, LocalDate endDate);
 }
